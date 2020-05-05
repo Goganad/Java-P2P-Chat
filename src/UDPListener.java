@@ -10,6 +10,7 @@ public class UDPListener implements Runnable{
     private byte[] buf = new byte[1024];
     private DatagramPacket packet = new DatagramPacket(buf, buf.length);
 
+
     public DatagramSocket getDatagramSocket(){
         return datagramSocket;
     }
@@ -17,8 +18,6 @@ public class UDPListener implements Runnable{
     public UDPListener(Client client){
         this.client = client;
     }
-
-
 
     @Override
     public void run() {
@@ -30,6 +29,7 @@ public class UDPListener implements Runnable{
                 Message bufMsg = (Message) Utilities.getObject(buf);
                 if (!bufMsg.getSenderIP().equals(this.client.getIp())) {
                     try {
+                        System.out.println(bufMsg.getTime()+":"+bufMsg.getSenderNickname()+" connected");
                         this.client.changePeerList(bufMsg.getSenderIP(), bufMsg.getSenderNickname(), true);
                         Socket socket = new Socket(bufMsg.getSenderIP(), this.client.getPortTCP());
                         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());

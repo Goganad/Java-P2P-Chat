@@ -1,12 +1,12 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 
 public class Main {
 
     private static boolean isActive = true;
     private static Client client;
-    private static Message msg;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         System.out.println("Welcome to chat!");
@@ -29,23 +29,27 @@ public class Main {
             udpListenerThread.start();
 
             client.sendUDPBroadcast();
+            Thread.sleep(100);
             if (!client.getPeers().isEmpty()){
-                client.sendMessage(new Message(Message.msgType.HISTORY_REQUEST, client.getNickname(), client.getIp()));
-                //client.printHistory();
+                InetAddress historyPeerIP = client.getPeers().get(0);
+                String historyPeerNickname = client.getPeerNicknames().get(historyPeerIP);
+                client.sendMessage(new Message(Message.msgType.HISTORY_REQUEST,historyPeerNickname, historyPeerIP));
             }
 
             while (isActive) {
                 bufText = bufferedReader.readLine();
                 if (!bufText.equals("/exit")) {
-                    client.sendMessage(new Message(Message.msgType.MESSAGE, client.getNickname(), client.getIp(), bufText));
-                    client.updateOutput();
+                    Message message = new Message(Message.msgType.MESSAGE, client.getNickname(), client.getIp(), bufText);
+                    client.sendMessage(message);
+                    System.out.println(message.getTime()+":"+message.getSenderNickname() + ":" + message.getText());
+                    client.addMessageToHistory(message);
                 } else {
                     client.sendMessage(new Message(Message.msgType.DISCONNECTED, client.getNickname(), client.getIp(), bufText));
                     isActive = false;
                     tcpListener.getSrvSocket().close();
                     udpListener.getDatagramSocket().close();
-                    tcpListenerThread.interrupt();
                     udpListenerThread.interrupt();
+                    tcpListenerThread.interrupt();
                 }
             }
         }

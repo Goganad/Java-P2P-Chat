@@ -1,5 +1,3 @@
-import jdk.swing.interop.SwingInterOpUtils;
-
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.*;
@@ -32,6 +30,10 @@ public class Client {
     private HashMap<InetAddress, String> peerNicknames = new HashMap<>();
     private ArrayList<Message> history;
 
+    public HashMap<InetAddress, String> getPeerNicknames() {
+        return peerNicknames;
+    }
+
     public Client(String nickname, int portTCP, int portUDP) throws IOException {
         this.nickname = nickname;
         this.portTCP = portTCP;
@@ -45,18 +47,10 @@ public class Client {
         return peers;
     }
 
-
-    public void sendHistory(){
+    public void sendHistory(InetAddress ip){
         for (Message msg:
              this.history) {
-            sendMessage(new Message(Message.msgType.MESSAGE, msg.getSenderNickname(), msg.getSenderIP(), msg.getText()));
-        }
-    }
-
-    public void updateOutput(){
-        Message msg = this.history.get(this.history.size()-1);
-        if (!msg.getSenderIP().equals(this.ip)){
-            System.out.println(msg.getTime()+":"+msg.getSenderNickname() + ":" + msg.getText());
+            sendMessage(new Message(Message.msgType.MESSAGE, this.peerNicknames.get(ip), ip, msg.getText()));
         }
     }
 
@@ -70,6 +64,7 @@ public class Client {
             this.peerNicknames.put(ip, nickname);
         } else {
             this.peers.remove(ip);
+            this.peerNicknames.remove(ip);
         }
     }
 
@@ -101,10 +96,12 @@ public class Client {
 //        }
     }
 
+    public void sendHistory(Message msg){
+
+    }
 
     public void sendMessage(Message msg){
         Socket socket;
-        this.addMessageToHistory(msg);
         for (InetAddress peer: this.peers
         ) {
             try {
