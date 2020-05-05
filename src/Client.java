@@ -47,13 +47,6 @@ public class Client {
         return peers;
     }
 
-    public void sendHistory(InetAddress ip){
-        for (Message msg:
-             this.history) {
-            sendMessage(new Message(Message.msgType.MESSAGE, this.peerNicknames.get(ip), ip, msg.getText()));
-        }
-    }
-
     public void addMessageToHistory(Message msg){
         this.history.add(msg);
     }
@@ -68,26 +61,39 @@ public class Client {
         }
     }
 
-    public static InetAddress getClientIP() throws IOException {
+    public static InetAddress getClientIP(){
         Socket socket = new Socket();
-        socket.connect(new InetSocketAddress("google.com", 80));
+        try {
+            socket.connect(new InetSocketAddress("google.com", 80));
+        } catch (IOException e){
+            System.out.println("Couldn't get ip");
+        }
         return socket.getLocalAddress();
     }
 
-    private DatagramPacket buildUDPPacket(InetAddress adr, int portUDP) throws IOException {
+    private DatagramPacket buildUDPPacket(InetAddress adr, int portUDP){
         Message msg = new Message(Message.msgType.CONNECTED, this.nickname, this.ip);
         msg.setText(this.nickname + " has connected");
-        byte[] buf = Utilities.getByteArray(msg);
+        byte[] buf = new byte[1];
+        try {
+            buf = Utilities.getByteArray(msg);
+        } catch (IOException e){
+            System.out.println("Couldn't load message");
+        }
         return new DatagramPacket(buf, buf.length, adr, portUDP);
     }
 
-    public void sendUDPBroadcast() throws IOException {
-        DatagramSocket socket = new DatagramSocket();
-        DatagramPacket packet;
-        String adrString = "192.168.0.255";
-        InetAddress adr = InetAddress.getByName(adrString);
-        packet = buildUDPPacket(adr, this.portUDP);
-        socket.send(packet);
+    public void sendUDPBroadcast(){
+        try {
+            DatagramSocket socket = new DatagramSocket();
+            DatagramPacket packet;
+            String adrString = "192.168.0.255";
+            InetAddress adr = InetAddress.getByName(adrString);
+            packet = buildUDPPacket(adr, this.portUDP);
+            socket.send(packet);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
 //        for (int i = 0; i<255; i++){
 //            String adrString = "192.168.0." + i;
 //            InetAddress adr = InetAddress.getByName(adrString);
@@ -96,8 +102,31 @@ public class Client {
 //        }
     }
 
-    public void sendHistory(Message msg){
+    public void sendHistory(InetAddress ip){
+        Socket socket;
+        for (Message msg:
+             this.history) {
+            try {
+                socket = new Socket(ip, this.portTCP);
+                ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+                Message message = new Message(Message.msgType.HISTORY_TRANSMISSION, this.getNickname(), this.getIp());
+                message.setText(Utilities.getByteArray(message).toString());
+                outputStream.writeObject(message);
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
 
+    public void sendHistoryRequest(InetAddress ip){
+        Socket socket;
+        try {
+            socket = new Socket(ip, this.portTCP);
+            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+            outputStream.writeObject(new Message(Message.msgType.HISTORY_REQUEST, this.getNickname(), this.getIp()));
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     public void sendMessage(Message msg){

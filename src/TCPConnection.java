@@ -1,3 +1,5 @@
+import jdk.jshell.execution.Util;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
@@ -18,18 +20,22 @@ public class TCPConnection implements Runnable{
             Message msg = (Message) in.readObject();
             switch (msg.getType()) {
                 case MESSAGE:
-                    client.addMessageToHistory(msg);
+                    this.client.addMessageToHistory(msg);
                     System.out.println(msg.getTime()+":"+msg.getSenderNickname() + ":" + msg.getText());
                     break;
                 case DISCONNECTED:
-                    client.changePeerList(msg.getSenderIP(), msg.getSenderNickname(), false);
+                    this.client.changePeerList(msg.getSenderIP(), msg.getSenderNickname(), false);
                     System.out.println(msg.getTime()+":"+msg.getSenderNickname()+" disconnected");
                     break;
                 case NAME_TRANSMISSION:
-                    client.changePeerList(msg.getSenderIP(), msg.getSenderNickname(), true);
+                    this.client.changePeerList(msg.getSenderIP(), msg.getSenderNickname(), true);
                     break;
                 case HISTORY_REQUEST:
-                    client.sendHistory(msg.getSenderIP());
+                    this.client.sendHistory(msg.getSenderIP());
+                case HISTORY_TRANSMISSION:
+                    Message message = (Message) Utilities.getObject(Utilities.getByteArray(msg.getText()));
+                    this.client.addMessageToHistory(message);
+                    System.out.println(msg.getTime()+":"+message.getSenderNickname() + ":" + message.getText());
                     break;
             }
             in.close();

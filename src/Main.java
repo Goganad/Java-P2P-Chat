@@ -31,9 +31,7 @@ public class Main {
             client.sendUDPBroadcast();
             Thread.sleep(100);
             if (!client.getPeers().isEmpty()){
-                InetAddress historyPeerIP = client.getPeers().get(0);
-                String historyPeerNickname = client.getPeerNicknames().get(historyPeerIP);
-                client.sendMessage(new Message(Message.msgType.HISTORY_REQUEST,historyPeerNickname, historyPeerIP));
+                client.sendHistoryRequest(client.getPeers().get(0));
             }
 
             while (isActive) {

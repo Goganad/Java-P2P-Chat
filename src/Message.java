@@ -10,6 +10,7 @@ public class Message implements Serializable{
         MESSAGE,
         NAME_TRANSMISSION,
         HISTORY_REQUEST,
+        HISTORY_TRANSMISSION
     }
 
     private msgType type;
