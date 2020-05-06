@@ -1,5 +1,3 @@
-import jdk.jshell.execution.Util;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
@@ -32,13 +30,7 @@ public class TCPConnection implements Runnable{
                     break;
                 case HISTORY_REQUEST:
                     this.client.sendHistory(msg.getSenderIP());
-                case HISTORY_TRANSMISSION:
-                    Message message = (Message) Utilities.getObject(Utilities.getByteArray(msg.getText()));
-                    this.client.addMessageToHistory(message);
-                    System.out.println(msg.getTime()+":"+message.getSenderNickname() + ":" + message.getText());
-                    break;
             }
-            in.close();
         } catch (IOException | ClassNotFoundException e){
             e.printStackTrace();
         }

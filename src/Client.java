@@ -102,19 +102,21 @@ public class Client {
 //        }
     }
 
+    public ArrayList<Message> getHistory() {
+        return history;
+    }
+
     public void sendHistory(InetAddress ip){
-        Socket socket;
-        for (Message msg:
-             this.history) {
-            try {
+        try {
+            Socket socket;
+            for (Message msg :
+                    this.history) {
                 socket = new Socket(ip, this.portTCP);
                 ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
-                Message message = new Message(Message.msgType.HISTORY_TRANSMISSION, this.getNickname(), this.getIp());
-                message.setText(Utilities.getByteArray(message).toString());
-                outputStream.writeObject(message);
-            } catch (IOException e){
-                e.printStackTrace();
+                outputStream.writeObject(msg);
             }
+        }catch (IOException e){
+            e.printStackTrace();
         }
     }
 

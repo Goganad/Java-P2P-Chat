@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 
 public class Main {
 
@@ -29,7 +28,7 @@ public class Main {
             udpListenerThread.start();
 
             client.sendUDPBroadcast();
-            Thread.sleep(100);
+            Thread.sleep(500);
             if (!client.getPeers().isEmpty()){
                 client.sendHistoryRequest(client.getPeers().get(0));
             }
@@ -37,13 +36,16 @@ public class Main {
             while (isActive) {
                 bufText = bufferedReader.readLine();
                 if (!bufText.equals("/exit")) {
+                    System.out.println(client.getPeers());
+                    System.out.println(client.getHistory());
                     Message message = new Message(Message.msgType.MESSAGE, client.getNickname(), client.getIp(), bufText);
                     client.sendMessage(message);
                     System.out.println(message.getTime()+":"+message.getSenderNickname() + ":" + message.getText());
                     client.addMessageToHistory(message);
                 } else {
-                    client.sendMessage(new Message(Message.msgType.DISCONNECTED, client.getNickname(), client.getIp(), bufText));
+                    client.sendMessage(new Message(Message.msgType.DISCONNECTED, client.getNickname(), client.getIp()));
                     isActive = false;
+                    Thread.sleep(200);
                     tcpListener.getSrvSocket().close();
                     udpListener.getDatagramSocket().close();
                     udpListenerThread.interrupt();
