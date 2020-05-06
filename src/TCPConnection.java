@@ -31,6 +31,7 @@ public class TCPConnection implements Runnable{
                 case HISTORY_REQUEST:
                     this.client.sendHistory(msg.getSenderIP());
             }
+            in.close();
         } catch (IOException | ClassNotFoundException e){
             e.printStackTrace();
         }

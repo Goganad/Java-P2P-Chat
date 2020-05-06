@@ -42,7 +42,7 @@ public class UDPListener implements Runnable{
                 }
                 datagramSocket.close();
             } catch (IOException | ClassNotFoundException e) {
-                System.out.println("UDP server down");;
+                System.out.println("UDP server down");
             }
         }
     }

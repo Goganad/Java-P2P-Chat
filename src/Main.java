@@ -8,7 +8,6 @@ public class Main {
     private static Client client;
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        System.out.println("Welcome to chat!");
         System.out.println("Enter your nickname");
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         try {
@@ -16,7 +15,7 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(Message.getCurrentTime());
+        System.out.println("Welcome to chat!");
         if (!client.equals(null)) {
             String bufText;
             TCPListener tcpListener = new TCPListener(client);
@@ -36,8 +35,6 @@ public class Main {
             while (isActive) {
                 bufText = bufferedReader.readLine();
                 if (!bufText.equals("/exit")) {
-                    System.out.println(client.getPeers());
-                    System.out.println(client.getHistory());
                     Message message = new Message(Message.msgType.MESSAGE, client.getNickname(), client.getIp(), bufText);
                     client.sendMessage(message);
                     System.out.println(message.getTime()+":"+message.getSenderNickname() + ":" + message.getText());
@@ -45,7 +42,6 @@ public class Main {
                 } else {
                     client.sendMessage(new Message(Message.msgType.DISCONNECTED, client.getNickname(), client.getIp()));
                     isActive = false;
-                    Thread.sleep(200);
                     tcpListener.getSrvSocket().close();
                     udpListener.getDatagramSocket().close();
                     udpListenerThread.interrupt();

@@ -108,10 +108,9 @@ public class Client {
 
     public void sendHistory(InetAddress ip){
         try {
-            Socket socket;
             for (Message msg :
                     this.history) {
-                socket = new Socket(ip, this.portTCP);
+                Socket socket = new Socket(ip, this.portTCP);
                 ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
                 outputStream.writeObject(msg);
             }

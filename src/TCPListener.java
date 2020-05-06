@@ -25,11 +25,10 @@ public class TCPListener implements Runnable{
             try {
                 srvSocket = new ServerSocket(client.getPortTCP());
                 socket = srvSocket.accept();
-                TCPConnection conn = new TCPConnection(socket, client);
-                Thread TCPConnThread = new Thread(conn);
-                TCPConnThread.start();
+                new Thread(new TCPConnection(socket, client)).start();
                 srvSocket.close();
-            } catch (IOException e) {
+                Thread.sleep(10);
+            } catch (IOException | InterruptedException e) {
                 System.out.println("TCP server down");
             }
         }
